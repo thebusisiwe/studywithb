@@ -4,23 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pomodoro Timer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  
-    <div class="container">
+    <div class="grain" aria-hidden="true"></div>
+
+    <main class="container">
+      <section class="editorial-rail" aria-label="App framing">
+      <div class="meta-row">
+        <p class="kicker">Study With Intention</p>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle color theme">Dark mode</button>
+      </div>
         <h1 class="title">Pomodoro Timer</h1>
+      <p class="subtitle">For creators who code in daylight and pray at midnight.</p>
+        <p class="rail-note">Issue 01 · Ritual Edition</p>
+      </section>
 
-        <hr>
-
+      <section class="timer-stage" aria-label="Timer controls">
+        <p class="timer-label">Current Focus</p>
         <p class="timer" id="timer">25:00</p>
+        <p class="timer-status" id="timer-status">Ready to begin</p>
+        <div class="completion-note" id="completion-note" aria-live="polite" hidden>
+          <p class="completion-note-label">Session complete</p>
+          <p class="completion-note-body" id="completion-note-body">Time's up.</p>
+        </div>
 
         <div class="button-wrapper">
-            <button id="start">Start</button>
-            <button id="pause">Pause</button>
-            <button id="reset">Reset</button>
+          <button id="start">Start</button>
+          <button id="pause">Pause</button>
+          <button id="reset">Reset</button>
         </div>
-    </div>
+      </section>
+    </main>
   <!--JS-->
   <script src="app.js"></script>
 </body>
