@@ -447,11 +447,15 @@ const switchView = (view) => {
     document.body.dataset.view = activeView;
 
     if (timerStage) {
-        timerStage.hidden = activeView !== "timer";
+        const timerVisible = activeView === "timer";
+        timerStage.hidden = !timerVisible;
+        timerStage.style.display = timerVisible ? "flex" : "none";
     }
 
     if (plannerStage) {
-        plannerStage.hidden = activeView !== "planner";
+        const plannerVisible = activeView === "planner";
+        plannerStage.hidden = !plannerVisible;
+        plannerStage.style.display = plannerVisible ? "flex" : "none";
     }
 
     if (viewTimerBtn) {
