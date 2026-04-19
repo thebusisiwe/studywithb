@@ -80,10 +80,21 @@
           </form>
 
           <div class="planner-toolbar">
-            <label class="planner-toggle" for="show-archived">
-              <input id="show-archived" type="checkbox">
-              Show archived
+            <label class="planner-sort-wrap" for="planner-sort">
+              <span class="planner-sort-label">Sort</span>
+              <select class="planner-sort" id="planner-sort">
+                <option value="newest">Newest</option>
+                <option value="remaining">Most remaining</option>
+                <option value="closest">Closest to done</option>
+                <option value="status">Status</option>
+              </select>
             </label>
+            <div class="planner-filters" id="planner-filters" role="group" aria-label="Task status filter">
+              <button class="planner-filter" type="button" data-filter="all" aria-pressed="true">All</button>
+              <button class="planner-filter" type="button" data-filter="active" aria-pressed="false">Active</button>
+              <button class="planner-filter" type="button" data-filter="done" aria-pressed="false">Done</button>
+              <button class="planner-filter" type="button" data-filter="archived" aria-pressed="false">Archived</button>
+            </div>
           </div>
 
           <section class="planner-list-panel" aria-label="Planner task list">
