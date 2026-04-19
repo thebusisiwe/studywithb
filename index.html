@@ -95,10 +95,50 @@
   <script src="app.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
+      const activateWaitingWorker = (registration) => {
+        if (registration.waiting) {
+          registration.waiting.postMessage({ type: "SKIP_WAITING" });
+        }
+      };
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (refreshing) {
+          return;
+        }
+
+        refreshing = true;
+        window.location.reload();
+      });
+
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(() => {
-          // SW registration failed silently; app still works online.
-        });
+        navigator.serviceWorker
+          .register("./sw.js")
+          .then((registration) => {
+            activateWaitingWorker(registration);
+            registration.addEventListener("updatefound", () => {
+              const newWorker = registration.installing;
+              if (!newWorker) {
+                return;
+              }
+
+              newWorker.addEventListener("statechange", () => {
+                if (
+                  newWorker.state === "installed" &&
+                  navigator.serviceWorker.controller
+                ) {
+                  activateWaitingWorker(registration);
+                }
+              });
+            });
+
+            registration.update().catch(() => {
+              // Ignore update check failures.
+            });
+          })
+          .catch(() => {
+            // SW registration failed silently; app still works online.
+          });
       });
     }
   </script>

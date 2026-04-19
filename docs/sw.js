@@ -13,6 +13,12 @@ const PRECACHE_ASSETS = [
     "./icons/icon.svg",
 ];
 
+self.addEventListener("message", (event) => {
+    if (event.data && event.data.type === "SKIP_WAITING") {
+        self.skipWaiting();
+    }
+});
+
 // ─── Install: precache core assets ───────────────────────────────────────────
 self.addEventListener("install", (event) => {
     event.waitUntil(
@@ -46,6 +52,36 @@ self.addEventListener("fetch", (event) => {
         event.request.method !== "GET" ||
         !event.request.url.startsWith(self.location.origin)
     ) {
+        return;
+    }
+
+    if (event.request.mode === "navigate") {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    if (
+                        response &&
+                        response.status === 200 &&
+                        response.type === "basic"
+                    ) {
+                        const toCache = response.clone();
+                        caches
+                            .open(CACHE_NAME)
+                            .then((cache) => cache.put(event.request, toCache));
+                    }
+
+                    return response;
+                })
+                .catch(() =>
+                    caches.match(event.request).then((cached) => {
+                        if (cached) {
+                            return cached;
+                        }
+
+                        return caches.match("./index.html");
+                    })
+                )
+        );
         return;
     }
 
