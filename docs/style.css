@@ -308,6 +308,11 @@ body[data-view="planner"] #timer-stage {
     display: none;
 }
 
+#timer-stage[hidden],
+#planner-stage[hidden] {
+    display: none !important;
+}
+
 .planner-form {
     display: grid;
     gap: 0.45rem;
