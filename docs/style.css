@@ -300,6 +300,14 @@ body[data-theme="emerald-night"] .theme-toggle:hover {
     padding: clamp(1.3rem, 3.4vw, 2.2rem);
 }
 
+body[data-view="timer"] #planner-stage {
+    display: none;
+}
+
+body[data-view="planner"] #timer-stage {
+    display: none;
+}
+
 .planner-form {
     display: grid;
     gap: 0.45rem;

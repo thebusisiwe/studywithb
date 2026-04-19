@@ -444,6 +444,8 @@ const incrementTaskProgress = (taskId) => {
 const switchView = (view) => {
     activeView = view === "planner" ? "planner" : "timer";
 
+    document.body.dataset.view = activeView;
+
     if (timerStage) {
         timerStage.hidden = activeView !== "timer";
     }
