@@ -45,6 +45,129 @@ const getActiveSession = () =>
 let timeleft = getActiveSession().duration;
 let timerInterval;
 let timerState = "ready";
+let audioContext;
+
+const getAudioContext = () => {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) {
+        return null;
+    }
+
+    if (!audioContext) {
+        audioContext = new AudioContextClass();
+    }
+
+    return audioContext;
+};
+
+const unlockAudio = () => {
+    const context = getAudioContext();
+
+    if (!context || context.state !== "suspended") {
+        return;
+    }
+
+    context.resume().catch(() => {
+        // Ignore resume failures; user interaction may still be required.
+    });
+};
+
+const scheduleTone = ({ frequency, startTime, duration, peakGain, pan = 0, type = "sine" }) => {
+    const context = getAudioContext();
+    if (!context) {
+        return;
+    }
+
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+    const hasStereoPan = typeof context.createStereoPanner === "function";
+    const panNode = hasStereoPan ? context.createStereoPanner() : null;
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, startTime);
+    gainNode.gain.setValueAtTime(0.0001, startTime);
+    gainNode.gain.exponentialRampToValueAtTime(peakGain, startTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+    oscillator.connect(gainNode);
+    if (panNode) {
+        panNode.pan.setValueAtTime(pan, startTime);
+        gainNode.connect(panNode);
+        panNode.connect(context.destination);
+    } else {
+        gainNode.connect(context.destination);
+    }
+
+    oscillator.start(startTime);
+    oscillator.stop(startTime + duration + 0.04);
+};
+
+const playStartWindChimes = () => {
+    unlockAudio();
+    const context = getAudioContext();
+    if (!context) {
+        return;
+    }
+
+    const now = context.currentTime;
+    const notes = [523.25, 659.25, 783.99, 987.77];
+
+    notes.forEach((note, index) => {
+        const at = now + (index * 0.17);
+        const pan = index % 2 === 0 ? -0.25 : 0.25;
+        scheduleTone({
+            frequency: note,
+            startTime: at,
+            duration: 1.25,
+            peakGain: 0.025,
+            pan,
+            type: "sine",
+        });
+        scheduleTone({
+            frequency: note * 2,
+            startTime: at + 0.01,
+            duration: 0.9,
+            peakGain: 0.008,
+            pan,
+            type: "triangle",
+        });
+    });
+};
+
+const playEndBells = () => {
+    unlockAudio();
+    const context = getAudioContext();
+    if (!context) {
+        return;
+    }
+
+    const now = context.currentTime;
+    const strikes = [0, 0.34];
+    const chord = [587.33, 880.0, 1174.66];
+
+    strikes.forEach((offset, strikeIndex) => {
+        chord.forEach((note, noteIndex) => {
+            const at = now + offset + (noteIndex * 0.015);
+            const pan = strikeIndex === 0 ? -0.18 : 0.18;
+            scheduleTone({
+                frequency: note,
+                startTime: at,
+                duration: 1.45,
+                peakGain: 0.028,
+                pan,
+                type: "triangle",
+            });
+            scheduleTone({
+                frequency: note * 2,
+                startTime: at + 0.01,
+                duration: 1.0,
+                peakGain: 0.006,
+                pan,
+                type: "sine",
+            });
+        });
+    });
+};
 
 const formatTime = (value) => {
     const minutes = Math.floor(value / 60);
@@ -145,6 +268,10 @@ const startTimer = () => {
         return;
     }
 
+    if (timerState !== "paused") {
+        playStartWindChimes();
+    }
+
     hideNotification();
     applyTimerState("running");
 
@@ -156,6 +283,7 @@ const startTimer = () => {
             clearInterval(timerInterval);
             timerInterval = null;
             timeleft = getActiveSession().duration;
+            playEndBells();
             showNotification("Your focus block is complete. Take a breath before the next one.");
             applyTimerState("complete");
             updateTimer();
