@@ -270,6 +270,11 @@ body[data-theme="emerald-night"] .theme-toggle:hover {
     display: flex;
     align-items: center;
     gap: 0.55rem;
+    padding: 0.45rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--panel-strong);
+    width: fit-content;
 }
 
 .view-tab {
@@ -277,9 +282,9 @@ body[data-theme="emerald-night"] .theme-toggle:hover {
     border: 1px solid var(--line);
     background: transparent;
     color: var(--muted-ink);
-    padding: 0.45rem 0.95rem;
+    padding: 0.5rem 1.12rem;
     font-size: 0.74rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     font-weight: 700;
 }
@@ -777,6 +782,11 @@ button.view-tab[aria-pressed="true"] {
     background: var(--ink);
     color: var(--bg);
     border-color: var(--ink);
+    box-shadow: 0 7px 16px rgba(0, 0, 0, 0.14);
+}
+
+button.view-tab:not([aria-pressed="true"]) {
+    opacity: 0.92;
 }
 
 button.planner-submit {
@@ -836,6 +846,15 @@ button.planner-submit:hover {
     .timer {
         font-size: clamp(3.6rem, 18vw, 5rem);
         line-height: 0.9;
+    }
+
+    .view-tabs {
+        width: 100%;
+    }
+
+    .view-tab {
+        flex: 1;
+        text-align: center;
     }
 
     .button-wrapper {
