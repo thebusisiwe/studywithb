@@ -753,6 +753,39 @@ button:active {
     background: var(--reset);
 }
 
+button.view-tab,
+button.planner-action {
+    background: transparent;
+    color: var(--muted-ink);
+    border: 1px solid var(--line);
+    box-shadow: none;
+}
+
+button.view-tab:hover,
+button.planner-action:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+    filter: none;
+}
+
+button.view-tab[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+}
+
+button.planner-submit {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+}
+
+button.planner-submit:hover {
+    filter: none;
+    background: var(--panel-strong);
+    color: var(--ink);
+}
+
 @media (max-width: 900px) {
     .container {
         grid-template-columns: 1fr;
