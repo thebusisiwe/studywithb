@@ -1,7 +1,7 @@
 // ─── Cache version ────────────────────────────────────────────────────────────
 // Bump CACHE_VERSION whenever you deploy updated app files so users
 // receive fresh assets instead of stale cached ones.
-const CACHE_VERSION = "v5";
+const CACHE_VERSION = "v6";
 const CACHE_NAME = `studywithb-${CACHE_VERSION}`;
 
 const PRECACHE_ASSETS = [
@@ -81,6 +81,29 @@ self.addEventListener("fetch", (event) => {
                         return caches.match("./index.html");
                     })
                 )
+        );
+        return;
+    }
+
+    // Keep core app assets fresh to avoid stale UI after deploys.
+    if (["script", "style"].includes(event.request.destination)) {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    if (
+                        response &&
+                        response.status === 200 &&
+                        response.type === "basic"
+                    ) {
+                        const toCache = response.clone();
+                        caches
+                            .open(CACHE_NAME)
+                            .then((cache) => cache.put(event.request, toCache));
+                    }
+
+                    return response;
+                })
+                .catch(() => caches.match(event.request))
         );
         return;
     }
