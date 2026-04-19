@@ -30,32 +30,66 @@
         </div>
       </section>
 
-      <section class="timer-stage" aria-label="Timer controls">
-        <div class="mode-selector" id="mode-selector" role="group" aria-label="Session mode"></div>
-        <p class="timer-label" id="timer-label">Work</p>
-        <p class="timer" id="timer">25:00</p>
-        <p class="timer-status" id="timer-status">Ready to begin</p>
-        <div class="task-block">
-          <label class="task-label" for="task-input">Current task (optional)</label>
-          <input class="task-input" id="task-input" type="text" maxlength="80" placeholder="What are you focusing on?" autocomplete="off">
-        </div>
-        <div class="completion-note" id="completion-note" aria-live="polite" hidden>
-          <p class="completion-note-label">Session complete</p>
-          <p class="completion-note-body" id="completion-note-body">Time's up.</p>
-        </div>
+      <div class="stage-column">
+        <nav class="view-tabs" aria-label="Workspace view">
+          <button class="view-tab" id="view-timer-btn" type="button" aria-pressed="true">Timer</button>
+          <button class="view-tab" id="view-planner-btn" type="button" aria-pressed="false">Planner</button>
+        </nav>
 
-        <div class="button-wrapper">
-          <button id="start">Start</button>
-          <button id="pause">Pause</button>
-          <button id="reset">Reset</button>
-        </div>
+        <section class="timer-stage" id="timer-stage" aria-label="Timer controls">
+          <div class="mode-selector" id="mode-selector" role="group" aria-label="Session mode"></div>
+          <p class="timer-label" id="timer-label">Work</p>
+          <p class="timer" id="timer">25:00</p>
+          <p class="timer-status" id="timer-status">Ready to begin</p>
+          <div class="task-block">
+            <label class="task-label" for="task-select">Linked planned task (optional)</label>
+            <select class="task-select" id="task-select">
+              <option value="">No linked planned task</option>
+            </select>
+            <label class="task-label" for="task-input">Current task note (optional)</label>
+            <input class="task-input" id="task-input" type="text" maxlength="80" placeholder="What are you focusing on?" autocomplete="off">
+          </div>
+          <div class="completion-note" id="completion-note" aria-live="polite" hidden>
+            <p class="completion-note-label">Session complete</p>
+            <p class="completion-note-body" id="completion-note-body">Time's up.</p>
+          </div>
 
-        <section class="history-panel" aria-label="Session history">
-          <p class="history-title">Recent sessions</p>
-          <p class="history-empty" id="history-empty">No sessions logged yet.</p>
-          <ul class="history-list" id="history-list"></ul>
+          <div class="button-wrapper">
+            <button id="start">Start</button>
+            <button id="pause">Pause</button>
+            <button id="reset">Reset</button>
+          </div>
+
+          <section class="history-panel" aria-label="Session history">
+            <p class="history-title">Recent sessions</p>
+            <p class="history-empty" id="history-empty">No sessions logged yet.</p>
+            <ul class="history-list" id="history-list"></ul>
+          </section>
         </section>
-      </section>
+
+        <section class="planner-stage" id="planner-stage" aria-label="Planner" hidden>
+          <form class="planner-form" id="planner-form">
+            <label class="task-label" for="planner-task-title">Task title</label>
+            <input class="task-input" id="planner-task-title" type="text" maxlength="80" placeholder="Odin Project - CSS Flexbox" required autocomplete="off">
+            <label class="task-label" for="planner-task-estimate">Estimated sessions</label>
+            <input class="task-input" id="planner-task-estimate" type="number" min="1" max="40" value="4" required>
+            <button class="planner-submit" type="submit">Add Task</button>
+          </form>
+
+          <div class="planner-toolbar">
+            <label class="planner-toggle" for="show-archived">
+              <input id="show-archived" type="checkbox">
+              Show archived
+            </label>
+          </div>
+
+          <section class="planner-list-panel" aria-label="Planner task list">
+            <p class="history-title">Planned tasks</p>
+            <p class="history-empty" id="planner-empty">No tasks yet. Add your first planned focus block.</p>
+            <ul class="planner-list" id="planner-task-list"></ul>
+          </section>
+        </section>
+      </div>
     </main>
   <!--JS-->
   <script src="app.js"></script>

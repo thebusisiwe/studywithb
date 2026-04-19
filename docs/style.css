@@ -230,6 +230,144 @@ body[data-theme="emerald-night"] .theme-toggle:hover {
     padding: clamp(1.5rem, 3.8vw, 2.6rem);
 }
 
+.stage-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.view-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.view-tab {
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted-ink);
+    padding: 0.45rem 0.95rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.view-tab[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+}
+
+.planner-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    background: var(--stage);
+    border: 1px solid var(--line);
+    border-radius: 0.88rem;
+    padding: clamp(1.3rem, 3.4vw, 2.2rem);
+}
+
+.planner-form {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.planner-submit {
+    width: 100%;
+    margin-top: 0.2rem;
+}
+
+.planner-toolbar {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.planner-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--muted-ink);
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.planner-list-panel {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    padding: 0.78rem 0.9rem;
+    background: var(--panel);
+}
+
+.planner-list {
+    list-style: none;
+    margin-top: 0.5rem;
+    display: grid;
+    gap: 0.55rem;
+}
+
+.planner-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.8rem;
+    border-top: 1px solid var(--line);
+    padding-top: 0.6rem;
+}
+
+.planner-item-details {
+    min-width: 0;
+    display: grid;
+    gap: 0.24rem;
+}
+
+.planner-item-title {
+    color: var(--ink);
+    font-size: 0.93rem;
+    line-height: 1.4;
+}
+
+.planner-item-meta {
+    color: var(--muted-ink);
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.planner-item-done .planner-item-title {
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+.planner-item-archived .planner-item-title,
+.planner-item-archived .planner-item-meta {
+    opacity: 0.72;
+}
+
+.planner-item-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.38rem;
+}
+
+.planner-action {
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    padding: 0.34rem 0.7rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
 body[data-theme="burgundy-night"] .timer-stage {
     background: var(--stage);
 }
@@ -404,6 +542,18 @@ body[data-theme="emerald-night"] #reset:active {
     transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
+.task-select {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    border-radius: 0.62rem;
+    padding: 0.66rem 0.78rem;
+    font-size: 0.95rem;
+    font-family: "Space Grotesk", sans-serif;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
 .task-input::placeholder {
     color: var(--muted-ink);
 }
@@ -414,8 +564,19 @@ body[data-theme="emerald-night"] #reset:active {
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
 }
 
+.task-select:focus {
+    outline: none;
+    border-color: var(--ink);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
 body[data-theme="burgundy-night"] .task-input:focus,
 body[data-theme="emerald-night"] .task-input:focus {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14);
+}
+
+body[data-theme="burgundy-night"] .task-select:focus,
+body[data-theme="emerald-night"] .task-select:focus {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14);
 }
 
@@ -610,6 +771,15 @@ button:active {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.15rem;
+    }
+
+    .planner-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .planner-item-actions {
+        justify-content: flex-start;
     }
 
     .history-task {

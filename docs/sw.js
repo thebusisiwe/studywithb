@@ -1,7 +1,7 @@
 // ─── Cache version ────────────────────────────────────────────────────────────
 // Bump CACHE_VERSION whenever you deploy updated app files so users
 // receive fresh assets instead of stale cached ones.
-const CACHE_VERSION = "v4";
+const CACHE_VERSION = "v5";
 const CACHE_NAME = `studywithb-${CACHE_VERSION}`;
 
 const PRECACHE_ASSETS = [

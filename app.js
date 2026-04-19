@@ -9,8 +9,19 @@ const completionNoteBody = document.getElementById("completion-note-body");
 const themeToggle = document.getElementById("theme-toggle");
 const modeSelector = document.getElementById("mode-selector");
 const taskInput = document.getElementById("task-input");
+const taskSelect = document.getElementById("task-select");
 const historyList = document.getElementById("history-list");
 const historyEmpty = document.getElementById("history-empty");
+const viewTimerBtn = document.getElementById("view-timer-btn");
+const viewPlannerBtn = document.getElementById("view-planner-btn");
+const timerStage = document.getElementById("timer-stage");
+const plannerStage = document.getElementById("planner-stage");
+const plannerForm = document.getElementById("planner-form");
+const plannerTaskTitle = document.getElementById("planner-task-title");
+const plannerTaskEstimate = document.getElementById("planner-task-estimate");
+const plannerTaskList = document.getElementById("planner-task-list");
+const plannerEmpty = document.getElementById("planner-empty");
+const showArchivedToggle = document.getElementById("show-archived");
 
 // ─── Session preset system ────────────────────────────────────────────────────
 const DEFAULT_SESSIONS = [
@@ -22,6 +33,8 @@ const DEFAULT_SESSIONS = [
 const SESSIONS_KEY = "pomodoroSessions";
 const ACTIVE_SESSION_KEY = "pomodoroActiveSession";
 const SESSION_LOG_KEY = "pomodoroSessionLog";
+const TASKS_KEY = "pomodoroTasks";
+const ACTIVE_VIEW_KEY = "pomodoroActiveView";
 const SESSION_LOG_LIMIT = 60;
 
 const loadSessions = () => {
@@ -54,13 +67,97 @@ const loadSessionLog = () => {
     return [];
 };
 
+const normalizeSessionEntry = (entry) => {
+    const taskName = typeof entry?.taskName === "string" && entry.taskName.trim().length > 0
+        ? entry.taskName.trim()
+        : "Untitled session";
+    const modeId = typeof entry?.modeId === "string" ? entry.modeId : "work";
+    const modeLabel = typeof entry?.modeLabel === "string" && entry.modeLabel.trim().length > 0
+        ? entry.modeLabel
+        : modeId === "short-break"
+            ? "Short Break"
+            : modeId === "long-break"
+                ? "Long Break"
+                : "Work";
+    const duration = Number.isFinite(entry?.duration) ? entry.duration : 1500;
+    const completedAt = typeof entry?.completedAt === "string" ? entry.completedAt : new Date().toISOString();
+
+    return {
+        id: typeof entry?.id === "string" ? entry.id : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        taskName,
+        taskId: typeof entry?.taskId === "string" ? entry.taskId : null,
+        modeId,
+        modeLabel,
+        duration,
+        completedAt,
+    };
+};
+
+const loadTasks = () => {
+    try {
+        const stored = localStorage.getItem(TASKS_KEY);
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) {
+                return parsed
+                    .map((task) => {
+                        const title = typeof task?.title === "string" ? task.title.trim() : "";
+                        if (!title) {
+                            return null;
+                        }
+
+                        const estimatedRaw = Number.parseInt(task?.estimatedSessions, 10);
+                        const completedRaw = Number.parseInt(task?.completedSessions, 10);
+                        const estimatedSessions = Number.isFinite(estimatedRaw) && estimatedRaw > 0 ? estimatedRaw : 1;
+                        const completedSessions = Number.isFinite(completedRaw) && completedRaw >= 0
+                            ? Math.min(completedRaw, estimatedSessions)
+                            : 0;
+                        const status = task?.status === "done" || task?.status === "archived"
+                            ? task.status
+                            : "active";
+
+                        return {
+                            id: typeof task?.id === "string"
+                                ? task.id
+                                : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                            title,
+                            estimatedSessions,
+                            completedSessions,
+                            status,
+                            createdAt: typeof task?.createdAt === "string" ? task.createdAt : new Date().toISOString(),
+                        };
+                    })
+                    .filter(Boolean);
+            }
+        }
+    } catch (_) {}
+
+    return [];
+};
+
+const saveTasks = (entries) => {
+    localStorage.setItem(TASKS_KEY, JSON.stringify(entries));
+};
+
 const saveSessionLog = (entries) => {
     localStorage.setItem(SESSION_LOG_KEY, JSON.stringify(entries));
 };
 
 let sessions = loadSessions();
 let activeSessionId = localStorage.getItem(ACTIVE_SESSION_KEY) || sessions[0].id;
-let sessionLog = loadSessionLog();
+let sessionLog = loadSessionLog().map(normalizeSessionEntry);
+let tasks = loadTasks();
+let activeView = localStorage.getItem(ACTIVE_VIEW_KEY) || "timer";
+
+saveSessionLog(sessionLog);
+
+const findTaskById = (taskId) => tasks.find((task) => task.id === taskId) || null;
+
+const saveTasksAndRender = () => {
+    saveTasks(tasks);
+    renderTaskSelect();
+    renderPlannerTasks();
+};
 
 const getActiveSession = () =>
     sessions.find(s => s.id === activeSessionId) || sessions[0];
@@ -71,7 +168,50 @@ const getTaskName = () => {
     }
 
     const value = taskInput.value.trim();
-    return value.length > 0 ? value : "Untitled";
+    return value.length > 0 ? value : "Untitled session";
+};
+
+const getSelectedTaskId = () => {
+    if (!taskSelect || !taskSelect.value) {
+        return null;
+    }
+
+    const selectedTask = findTaskById(taskSelect.value);
+    if (!selectedTask || selectedTask.status !== "active") {
+        return null;
+    }
+
+    return selectedTask.id;
+};
+
+const resolveSessionTask = () => {
+    const selectedTaskId = getSelectedTaskId();
+    if (selectedTaskId) {
+        const selectedTask = findTaskById(selectedTaskId);
+        return {
+            taskId: selectedTask.id,
+            taskName: selectedTask.title,
+        };
+    }
+
+    const inputTaskName = getTaskName();
+    if (inputTaskName !== "Untitled session") {
+        const titleMatch = tasks.find((task) =>
+            task.status === "active" && task.title.toLowerCase() === inputTaskName.toLowerCase()
+        );
+
+        if (titleMatch) {
+            return {
+                taskId: titleMatch.id,
+                taskName: titleMatch.title,
+            };
+        }
+    }
+
+    return {
+        taskId: null,
+        taskName: inputTaskName,
+    };
 };
 
 const formatHistoryStamp = (isoDate) => {
@@ -105,7 +245,7 @@ const renderSessionHistory = () => {
 
         const task = document.createElement("p");
         task.className = "history-task";
-        task.textContent = entry.taskName;
+        task.textContent = entry.taskName || "Untitled session";
 
         const meta = document.createElement("p");
         meta.className = "history-meta";
@@ -117,11 +257,219 @@ const renderSessionHistory = () => {
     });
 };
 
+const renderTaskSelect = () => {
+    if (!taskSelect) {
+        return;
+    }
+
+    const previousValue = taskSelect.value;
+    taskSelect.innerHTML = "";
+
+    const emptyOption = document.createElement("option");
+    emptyOption.value = "";
+    emptyOption.textContent = "No linked planned task";
+    taskSelect.appendChild(emptyOption);
+
+    const activeTasks = tasks.filter((task) => task.status === "active");
+    activeTasks.forEach((task) => {
+        const remaining = Math.max(task.estimatedSessions - task.completedSessions, 0);
+        const option = document.createElement("option");
+        option.value = task.id;
+        option.textContent = `${task.title} (${remaining} left)`;
+        taskSelect.appendChild(option);
+    });
+
+    const stillExists = activeTasks.some((task) => task.id === previousValue);
+    taskSelect.value = stillExists ? previousValue : "";
+};
+
+const renderPlannerTasks = () => {
+    if (!plannerTaskList || !plannerEmpty) {
+        return;
+    }
+
+    plannerTaskList.innerHTML = "";
+
+    const visibleTasks = tasks
+        .filter((task) => (showArchivedToggle?.checked ? true : task.status !== "archived"))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    if (visibleTasks.length === 0) {
+        plannerEmpty.hidden = false;
+        return;
+    }
+
+    plannerEmpty.hidden = true;
+
+    visibleTasks.forEach((task) => {
+        const remaining = Math.max(task.estimatedSessions - task.completedSessions, 0);
+        const item = document.createElement("li");
+        item.className = `planner-item planner-item-${task.status}`;
+        item.dataset.taskId = task.id;
+
+        const details = document.createElement("div");
+        details.className = "planner-item-details";
+
+        const title = document.createElement("p");
+        title.className = "planner-item-title";
+        title.textContent = task.title;
+
+        const meta = document.createElement("p");
+        meta.className = "planner-item-meta";
+        meta.textContent = `${task.completedSessions}/${task.estimatedSessions} sessions completed · ${task.status}`;
+
+        if (remaining === 0 && task.status === "active") {
+            meta.textContent = `${meta.textContent} · target met`;
+        }
+
+        details.appendChild(title);
+        details.appendChild(meta);
+
+        const actions = document.createElement("div");
+        actions.className = "planner-item-actions";
+
+        if (task.status === "active") {
+            const doneButton = document.createElement("button");
+            doneButton.type = "button";
+            doneButton.className = "planner-action";
+            doneButton.dataset.action = "done";
+            doneButton.dataset.taskId = task.id;
+            doneButton.textContent = "Mark done";
+            actions.appendChild(doneButton);
+        } else if (task.status === "done") {
+            const reopenButton = document.createElement("button");
+            reopenButton.type = "button";
+            reopenButton.className = "planner-action";
+            reopenButton.dataset.action = "active";
+            reopenButton.dataset.taskId = task.id;
+            reopenButton.textContent = "Reopen";
+
+            const archiveButton = document.createElement("button");
+            archiveButton.type = "button";
+            archiveButton.className = "planner-action";
+            archiveButton.dataset.action = "archived";
+            archiveButton.dataset.taskId = task.id;
+            archiveButton.textContent = "Archive";
+
+            actions.appendChild(reopenButton);
+            actions.appendChild(archiveButton);
+        } else {
+            const restoreButton = document.createElement("button");
+            restoreButton.type = "button";
+            restoreButton.className = "planner-action";
+            restoreButton.dataset.action = "active";
+            restoreButton.dataset.taskId = task.id;
+            restoreButton.textContent = "Restore";
+            actions.appendChild(restoreButton);
+        }
+
+        item.appendChild(details);
+        item.appendChild(actions);
+        plannerTaskList.appendChild(item);
+    });
+};
+
+const createTask = (title, estimatedSessions) => {
+    const cleanTitle = title.trim();
+    if (!cleanTitle) {
+        return;
+    }
+
+    const estimate = Number.parseInt(estimatedSessions, 10);
+    const normalizedEstimate = Number.isFinite(estimate) && estimate > 0 ? estimate : 1;
+
+    const newTask = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        title: cleanTitle,
+        estimatedSessions: normalizedEstimate,
+        completedSessions: 0,
+        status: "active",
+        createdAt: new Date().toISOString(),
+    };
+
+    tasks = [newTask, ...tasks];
+    saveTasksAndRender();
+
+    if (taskSelect) {
+        taskSelect.value = newTask.id;
+    }
+};
+
+const setTaskStatus = (taskId, nextStatus) => {
+    let didChange = false;
+
+    tasks = tasks.map((task) => {
+        if (task.id !== taskId) {
+            return task;
+        }
+
+        didChange = true;
+        return {
+            ...task,
+            status: nextStatus,
+        };
+    });
+
+    if (didChange) {
+        saveTasksAndRender();
+    }
+};
+
+const incrementTaskProgress = (taskId) => {
+    let didChange = false;
+
+    tasks = tasks.map((task) => {
+        if (task.id !== taskId) {
+            return task;
+        }
+
+        if (task.status !== "active") {
+            return task;
+        }
+
+        const completedSessions = Math.min(task.completedSessions + 1, task.estimatedSessions);
+        didChange = true;
+
+        return {
+            ...task,
+            completedSessions,
+        };
+    });
+
+    if (didChange) {
+        saveTasksAndRender();
+    }
+};
+
+const switchView = (view) => {
+    activeView = view === "planner" ? "planner" : "timer";
+
+    if (timerStage) {
+        timerStage.hidden = activeView !== "timer";
+    }
+
+    if (plannerStage) {
+        plannerStage.hidden = activeView !== "planner";
+    }
+
+    if (viewTimerBtn) {
+        viewTimerBtn.setAttribute("aria-pressed", activeView === "timer" ? "true" : "false");
+    }
+
+    if (viewPlannerBtn) {
+        viewPlannerBtn.setAttribute("aria-pressed", activeView === "planner" ? "true" : "false");
+    }
+
+    localStorage.setItem(ACTIVE_VIEW_KEY, activeView);
+};
+
 const recordSessionCompletion = () => {
     const activeSession = getActiveSession();
+    const resolvedTask = resolveSessionTask();
     const entry = {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        taskName: getTaskName(),
+        taskName: resolvedTask.taskName,
+        taskId: resolvedTask.taskId,
         modeId: activeSession.id,
         modeLabel: activeSession.label,
         duration: activeSession.duration,
@@ -130,6 +478,11 @@ const recordSessionCompletion = () => {
 
     sessionLog = [entry, ...sessionLog].slice(0, SESSION_LOG_LIMIT);
     saveSessionLog(sessionLog);
+
+    if (activeSession.id === "work" && resolvedTask.taskId) {
+        incrementTaskProgress(resolvedTask.taskId);
+    }
+
     renderSessionHistory();
 };
 
@@ -402,6 +755,49 @@ start.addEventListener("click", startTimer);
 pause.addEventListener("click", pauseTimer);
 reset.addEventListener("click", resetTimer);
 
+if (viewTimerBtn) {
+    viewTimerBtn.addEventListener("click", () => switchView("timer"));
+}
+
+if (viewPlannerBtn) {
+    viewPlannerBtn.addEventListener("click", () => switchView("planner"));
+}
+
+if (plannerForm) {
+    plannerForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        createTask(plannerTaskTitle?.value || "", plannerTaskEstimate?.value || "1");
+
+        if (plannerTaskTitle) {
+            plannerTaskTitle.value = "";
+        }
+
+        if (plannerTaskEstimate) {
+            plannerTaskEstimate.value = "4";
+        }
+    });
+}
+
+if (showArchivedToggle) {
+    showArchivedToggle.addEventListener("change", renderPlannerTasks);
+}
+
+if (plannerTaskList) {
+    plannerTaskList.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLButtonElement)) {
+            return;
+        }
+
+        const { taskId, action } = target.dataset;
+        if (!taskId || !action) {
+            return;
+        }
+
+        setTaskStatus(taskId, action);
+    });
+}
+
 const THEMES = ["light", "burgundy-night", "emerald-night"];
 
 const themeLabel = (theme) => {
@@ -452,6 +848,9 @@ updateTimer();
 applyTimerState("ready");
 renderModeSelector();
 renderSessionHistory();
+renderTaskSelect();
+renderPlannerTasks();
+switchView(activeView);
 if (timerLabel) timerLabel.textContent = getActiveSession().label;
 
 // ─── PWA install prompt ───────────────────────────────────────────────────────
