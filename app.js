@@ -21,7 +21,8 @@ const plannerTaskTitle = document.getElementById("planner-task-title");
 const plannerTaskEstimate = document.getElementById("planner-task-estimate");
 const plannerTaskList = document.getElementById("planner-task-list");
 const plannerEmpty = document.getElementById("planner-empty");
-const showArchivedToggle = document.getElementById("show-archived");
+const plannerSort = document.getElementById("planner-sort");
+const plannerFilters = document.getElementById("planner-filters");
 
 // ─── Session preset system ────────────────────────────────────────────────────
 const DEFAULT_SESSIONS = [
@@ -148,6 +149,13 @@ let activeSessionId = localStorage.getItem(ACTIVE_SESSION_KEY) || sessions[0].id
 let sessionLog = loadSessionLog().map(normalizeSessionEntry);
 let tasks = loadTasks();
 let activeView = localStorage.getItem(ACTIVE_VIEW_KEY) || "timer";
+let plannerFilter = "all";
+
+const STATUS_ORDER = {
+    active: 0,
+    done: 1,
+    archived: 2,
+};
 
 saveSessionLog(sessionLog);
 
@@ -290,19 +298,57 @@ const renderPlannerTasks = () => {
 
     plannerTaskList.innerHTML = "";
 
-    const visibleTasks = tasks
-        .filter((task) => (showArchivedToggle?.checked ? true : task.status !== "archived"))
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const activeSort = plannerSort?.value || "newest";
+    const filteredTasks = tasks.filter((task) => {
+        if (plannerFilter === "all") {
+            return true;
+        }
+
+        return task.status === plannerFilter;
+    });
+
+    const withMetrics = filteredTasks.map((task) => ({
+        ...task,
+        remaining: Math.max(task.estimatedSessions - task.completedSessions, 0),
+    }));
+
+    const visibleTasks = withMetrics.sort((a, b) => {
+        const byCreatedAt = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+
+        if (activeSort === "remaining") {
+            return b.remaining - a.remaining || byCreatedAt;
+        }
+
+        if (activeSort === "closest") {
+            return a.remaining - b.remaining || byCreatedAt;
+        }
+
+        if (activeSort === "status") {
+            const left = STATUS_ORDER[a.status] ?? 99;
+            const right = STATUS_ORDER[b.status] ?? 99;
+            return left - right || byCreatedAt;
+        }
+
+        return byCreatedAt;
+    });
 
     if (visibleTasks.length === 0) {
+        if (tasks.length === 0) {
+            plannerEmpty.textContent = "No tasks yet. Add your first planned focus block.";
+        } else if (plannerFilter === "archived") {
+            plannerEmpty.textContent = "No archived tasks yet.";
+        } else {
+            plannerEmpty.textContent = `No ${plannerFilter} tasks right now.`;
+        }
+
         plannerEmpty.hidden = false;
         return;
     }
 
+    plannerEmpty.textContent = "No tasks yet. Add your first planned focus block.";
     plannerEmpty.hidden = true;
 
     visibleTasks.forEach((task) => {
-        const remaining = Math.max(task.estimatedSessions - task.completedSessions, 0);
         const item = document.createElement("li");
         item.className = `planner-item planner-item-${task.status}`;
         item.dataset.taskId = task.id;
@@ -314,13 +360,24 @@ const renderPlannerTasks = () => {
         title.className = "planner-item-title";
         title.textContent = task.title;
 
-        const meta = document.createElement("p");
+        const meta = document.createElement("div");
         meta.className = "planner-item-meta";
-        meta.textContent = `${task.completedSessions}/${task.estimatedSessions} sessions completed · ${task.status}`;
 
-        if (remaining === 0 && task.status === "active") {
-            meta.textContent = `${meta.textContent} · target met`;
-        }
+        const progressChip = document.createElement("span");
+        progressChip.className = "planner-chip planner-chip-progress";
+        progressChip.textContent = `${task.completedSessions}/${task.estimatedSessions}`;
+
+        const remainingChip = document.createElement("span");
+        remainingChip.className = "planner-chip planner-chip-remaining";
+        remainingChip.textContent = task.remaining === 0 ? "Target met" : `${task.remaining} left`;
+
+        const statusChip = document.createElement("span");
+        statusChip.className = `planner-chip planner-chip-status planner-chip-status-${task.status}`;
+        statusChip.textContent = task.status;
+
+        meta.appendChild(progressChip);
+        meta.appendChild(remainingChip);
+        meta.appendChild(statusChip);
 
         details.appendChild(title);
         details.appendChild(meta);
@@ -784,8 +841,29 @@ if (plannerForm) {
     });
 }
 
-if (showArchivedToggle) {
-    showArchivedToggle.addEventListener("change", renderPlannerTasks);
+if (plannerSort) {
+    plannerSort.addEventListener("change", renderPlannerTasks);
+}
+
+if (plannerFilters) {
+    plannerFilters.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLButtonElement)) {
+            return;
+        }
+
+        const filter = target.dataset.filter;
+        if (!filter) {
+            return;
+        }
+
+        plannerFilter = filter;
+        plannerFilters.querySelectorAll(".planner-filter").forEach((button) => {
+            button.setAttribute("aria-pressed", button.dataset.filter === filter ? "true" : "false");
+        });
+
+        renderPlannerTasks();
+    });
 }
 
 if (plannerTaskList) {
