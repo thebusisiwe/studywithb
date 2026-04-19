@@ -1,0 +1,25 @@
+{
+  "name": "Study With B — Pomodoro Timer",
+  "short_name": "Study With B",
+  "description": "An editorial Pomodoro timer for focused study sessions.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#161111",
+  "background_color": "#161111",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

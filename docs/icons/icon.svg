@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background fills full canvas for maskable safe zone compliance -->
+  <rect width="512" height="512" fill="#161111"/>
+  <!-- Clock face ring -->
+  <circle cx="256" cy="256" r="148" fill="none" stroke="#f3ebe7" stroke-width="14"/>
+  <!-- Minute hand (pointing up to 12) -->
+  <line x1="256" y1="256" x2="256" y2="140" stroke="#f3ebe7" stroke-width="14" stroke-linecap="round"/>
+  <!-- Hour hand (pointing to ~5) -->
+  <line x1="256" y1="256" x2="324" y2="306" stroke="#f3ebe7" stroke-width="14" stroke-linecap="round"/>
+  <!-- Center dot -->
+  <circle cx="256" cy="256" r="10" fill="#f3ebe7"/>
+  <!-- Subtle 12 o'clock tick -->
+  <line x1="256" y1="112" x2="256" y2="132" stroke="#f3ebe7" stroke-width="10" stroke-linecap="round"/>
+</svg>
