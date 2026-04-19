@@ -28,6 +28,10 @@
         <p class="timer-label" id="timer-label">Work</p>
         <p class="timer" id="timer">25:00</p>
         <p class="timer-status" id="timer-status">Ready to begin</p>
+        <div class="task-block">
+          <label class="task-label" for="task-input">Current task (optional)</label>
+          <input class="task-input" id="task-input" type="text" maxlength="80" placeholder="What are you focusing on?" autocomplete="off">
+        </div>
         <div class="completion-note" id="completion-note" aria-live="polite" hidden>
           <p class="completion-note-label">Session complete</p>
           <p class="completion-note-body" id="completion-note-body">Time's up.</p>
@@ -38,6 +42,12 @@
           <button id="pause">Pause</button>
           <button id="reset">Reset</button>
         </div>
+
+        <section class="history-panel" aria-label="Session history">
+          <p class="history-title">Recent sessions</p>
+          <p class="history-empty" id="history-empty">No sessions logged yet.</p>
+          <ul class="history-list" id="history-list"></ul>
+        </section>
       </section>
     </main>
   <!--JS-->

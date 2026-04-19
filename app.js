@@ -8,6 +8,9 @@ const completionNote = document.getElementById("completion-note");
 const completionNoteBody = document.getElementById("completion-note-body");
 const themeToggle = document.getElementById("theme-toggle");
 const modeSelector = document.getElementById("mode-selector");
+const taskInput = document.getElementById("task-input");
+const historyList = document.getElementById("history-list");
+const historyEmpty = document.getElementById("history-empty");
 
 // ─── Session preset system ────────────────────────────────────────────────────
 const DEFAULT_SESSIONS = [
@@ -18,6 +21,8 @@ const DEFAULT_SESSIONS = [
 
 const SESSIONS_KEY = "pomodoroSessions";
 const ACTIVE_SESSION_KEY = "pomodoroActiveSession";
+const SESSION_LOG_KEY = "pomodoroSessionLog";
+const SESSION_LOG_LIMIT = 60;
 
 const loadSessions = () => {
     try {
@@ -36,11 +41,97 @@ const saveSessions = (sessions) => {
     localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
 };
 
+const loadSessionLog = () => {
+    try {
+        const stored = localStorage.getItem(SESSION_LOG_KEY);
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) {
+                return parsed;
+            }
+        }
+    } catch (_) {}
+    return [];
+};
+
+const saveSessionLog = (entries) => {
+    localStorage.setItem(SESSION_LOG_KEY, JSON.stringify(entries));
+};
+
 let sessions = loadSessions();
 let activeSessionId = localStorage.getItem(ACTIVE_SESSION_KEY) || sessions[0].id;
+let sessionLog = loadSessionLog();
 
 const getActiveSession = () =>
     sessions.find(s => s.id === activeSessionId) || sessions[0];
+
+const getTaskName = () => {
+    if (!taskInput) {
+        return "Untitled";
+    }
+
+    const value = taskInput.value.trim();
+    return value.length > 0 ? value : "Untitled";
+};
+
+const formatHistoryStamp = (isoDate) => {
+    const date = new Date(isoDate);
+    if (Number.isNaN(date.getTime())) {
+        return "Unknown time";
+    }
+
+    const localDate = date.toLocaleDateString([], { month: "short", day: "numeric" });
+    const localTime = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return `${localDate} · ${localTime}`;
+};
+
+const renderSessionHistory = () => {
+    if (!historyList || !historyEmpty) {
+        return;
+    }
+
+    historyList.innerHTML = "";
+
+    if (sessionLog.length === 0) {
+        historyEmpty.hidden = false;
+        return;
+    }
+
+    historyEmpty.hidden = true;
+
+    sessionLog.slice(0, 5).forEach((entry) => {
+        const item = document.createElement("li");
+        item.className = "history-item";
+
+        const task = document.createElement("p");
+        task.className = "history-task";
+        task.textContent = entry.taskName;
+
+        const meta = document.createElement("p");
+        meta.className = "history-meta";
+        meta.textContent = `${entry.modeLabel} · ${formatHistoryStamp(entry.completedAt)}`;
+
+        item.appendChild(task);
+        item.appendChild(meta);
+        historyList.appendChild(item);
+    });
+};
+
+const recordSessionCompletion = () => {
+    const activeSession = getActiveSession();
+    const entry = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        taskName: getTaskName(),
+        modeId: activeSession.id,
+        modeLabel: activeSession.label,
+        duration: activeSession.duration,
+        completedAt: new Date().toISOString(),
+    };
+
+    sessionLog = [entry, ...sessionLog].slice(0, SESSION_LOG_LIMIT);
+    saveSessionLog(sessionLog);
+    renderSessionHistory();
+};
 
 let timeleft = getActiveSession().duration;
 let timerInterval;
@@ -284,6 +375,7 @@ const startTimer = () => {
             timerInterval = null;
             timeleft = getActiveSession().duration;
             playEndBells();
+            recordSessionCompletion();
             showNotification("Your focus block is complete. Take a breath before the next one.");
             applyTimerState("complete");
             updateTimer();
@@ -359,4 +451,5 @@ if (themeToggle) {
 updateTimer();
 applyTimerState("ready");
 renderModeSelector();
+renderSessionHistory();
 if (timerLabel) timerLabel.textContent = getActiveSession().label;

@@ -340,6 +340,48 @@ body[data-theme="emerald-night"] #reset:active {
     font-weight: 700;
 }
 
+.task-block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.38rem;
+}
+
+.task-label {
+    color: var(--muted-ink);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.task-input {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    border-radius: 0.62rem;
+    padding: 0.66rem 0.78rem;
+    font-size: 0.96rem;
+    font-family: "Space Grotesk", sans-serif;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.task-input::placeholder {
+    color: var(--muted-ink);
+}
+
+.task-input:focus {
+    outline: none;
+    border-color: var(--ink);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme="burgundy-night"] .task-input:focus,
+body[data-theme="emerald-night"] .task-input:focus {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.14);
+}
+
 .completion-note {
     width: 100%;
     border: 1px solid var(--line);
@@ -372,6 +414,60 @@ body[data-theme="emerald-night"] #reset:active {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.72rem;
+}
+
+.history-panel {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    padding: 0.78rem 0.9rem;
+    background: var(--panel);
+}
+
+.history-title {
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--muted-ink);
+}
+
+.history-empty {
+    color: var(--muted-ink);
+    font-size: 0.92rem;
+    margin-top: 0.5rem;
+}
+
+.history-list {
+    list-style: none;
+    margin-top: 0.5rem;
+    display: grid;
+    gap: 0.45rem;
+}
+
+.history-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem;
+    border-top: 1px solid var(--line);
+    padding-top: 0.45rem;
+}
+
+.history-meta {
+    color: var(--muted-ink);
+    font-size: 0.76rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.history-task {
+    font-size: 0.92rem;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 button {
@@ -471,5 +567,15 @@ button:active {
 
     .timer-stage {
         gap: 0.85rem;
+    }
+
+    .history-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.15rem;
+    }
+
+    .history-task {
+        white-space: normal;
     }
 }
