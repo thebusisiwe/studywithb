@@ -173,13 +173,50 @@ body[data-theme="emerald-night"] .theme-toggle:hover {
     max-width: 32ch;
 }
 
-.rail-note {
+.rail-bottom {
     margin-top: auto;
     padding-top: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    align-items: flex-start;
+}
+
+.rail-note {
     font-size: 0.8rem;
     letter-spacing: 0.13em;
     text-transform: uppercase;
     color: var(--muted-ink);
+}
+
+.install-btn {
+    padding: 0.42rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: "Space Grotesk", sans-serif;
+    transition: background 160ms ease, color 160ms ease;
+    box-shadow: none;
+}
+
+.install-btn:hover {
+    background: var(--ink);
+    color: var(--bg);
+    transform: none;
+    filter: none;
+}
+
+.install-ios {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--muted-ink);
+    max-width: 26ch;
 }
 
 .timer-stage {
@@ -531,7 +568,7 @@ button:active {
         padding-bottom: clamp(1.2rem, 3vw, 1.6rem);
     }
 
-    .rail-note {
+    .rail-bottom {
         margin-top: 1.2rem;
         padding-top: 0;
     }

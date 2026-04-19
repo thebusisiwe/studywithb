@@ -453,3 +453,45 @@ applyTimerState("ready");
 renderModeSelector();
 renderSessionHistory();
 if (timerLabel) timerLabel.textContent = getActiveSession().label;
+
+// ─── PWA install prompt ───────────────────────────────────────────────────────
+const installBtn = document.getElementById("install-btn");
+const installIos = document.getElementById("install-ios");
+let deferredInstallPrompt = null;
+
+const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isInStandaloneMode = () =>
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+if (!isInStandaloneMode()) {
+    if (isIos() && installIos) {
+        installIos.hidden = false;
+    }
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        if (installBtn) {
+            installBtn.hidden = false;
+        }
+    });
+
+    window.addEventListener("appinstalled", () => {
+        deferredInstallPrompt = null;
+        if (installBtn) installBtn.hidden = true;
+        if (installIos) installIos.hidden = true;
+    });
+}
+
+if (installBtn) {
+    installBtn.addEventListener("click", async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        if (outcome === "accepted") {
+            deferredInstallPrompt = null;
+            installBtn.hidden = true;
+        }
+    });
+}
