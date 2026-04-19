@@ -14,6 +14,9 @@
 </head>
 <body>
     <div class="grain" aria-hidden="true"></div>
+    <div class="update-banner" id="update-banner" role="status" aria-live="polite" hidden>
+      <p class="update-banner-text" id="update-banner-text">A new version is available. Refreshing...</p>
+    </div>
 
     <main class="container">
       <section class="editorial-rail" aria-label="App framing">
@@ -95,8 +98,22 @@
   <script src="app.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
+      const updateBanner = document.getElementById("update-banner");
+      const updateBannerText = document.getElementById("update-banner-text");
+
+      const showUpdateBanner = (message) => {
+        if (!updateBanner || !updateBannerText) {
+          return;
+        }
+
+        updateBannerText.textContent = message;
+        updateBanner.hidden = false;
+        updateBanner.classList.add("is-visible");
+      };
+
       const activateWaitingWorker = (registration) => {
         if (registration.waiting) {
+          showUpdateBanner("A new version is ready. Refreshing now...");
           registration.waiting.postMessage({ type: "SKIP_WAITING" });
         }
       };
@@ -108,7 +125,10 @@
         }
 
         refreshing = true;
-        window.location.reload();
+        showUpdateBanner("Update applied. Reloading...");
+        window.setTimeout(() => {
+          window.location.reload();
+        }, 650);
       });
 
       window.addEventListener("load", () => {

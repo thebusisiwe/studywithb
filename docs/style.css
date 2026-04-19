@@ -91,6 +91,36 @@ body {
     z-index: 0;
 }
 
+.update-banner {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 30;
+    border: 1px solid var(--line);
+    border-radius: 0.72rem;
+    background: var(--panel);
+    color: var(--ink);
+    padding: 0.62rem 0.78rem;
+    box-shadow: 0 12px 28px var(--shadow);
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 180ms ease, transform 180ms ease;
+    max-width: min(26rem, calc(100vw - 2rem));
+}
+
+.update-banner.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.update-banner-text {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
 .container {
     width: min(72rem, 100%);
     display: grid;
@@ -747,6 +777,14 @@ button:active {
     .container {
         border-radius: 0.8rem;
         padding: 1.1rem;
+    }
+
+    .update-banner {
+        top: auto;
+        right: 0.75rem;
+        left: 0.75rem;
+        bottom: 0.75rem;
+        max-width: none;
     }
 
     .timer {
