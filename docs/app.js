@@ -2,13 +2,47 @@ const start = document.getElementById("start");
 const pause = document.getElementById("pause");
 const reset = document.getElementById("reset");
 const timer = document.getElementById("timer");
+const timerLabel = document.getElementById("timer-label");
 const timerStatus = document.getElementById("timer-status");
 const completionNote = document.getElementById("completion-note");
 const completionNoteBody = document.getElementById("completion-note-body");
 const themeToggle = document.getElementById("theme-toggle");
+const modeSelector = document.getElementById("mode-selector");
 
-const defaultTime = 1500; // 25 mins
-let timeleft = defaultTime; // 25 minutes in seconds
+// ─── Session preset system ────────────────────────────────────────────────────
+const DEFAULT_SESSIONS = [
+    { id: "work",        label: "Work",         duration: 1500 },
+    { id: "short-break", label: "Short Break",   duration: 300  },
+    { id: "long-break",  label: "Long Break",    duration: 900  },
+];
+
+const SESSIONS_KEY = "pomodoroSessions";
+const ACTIVE_SESSION_KEY = "pomodoroActiveSession";
+
+const loadSessions = () => {
+    try {
+        const stored = localStorage.getItem(SESSIONS_KEY);
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+            }
+        }
+    } catch (_) {}
+    return DEFAULT_SESSIONS.map(s => ({ ...s }));
+};
+
+const saveSessions = (sessions) => {
+    localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+};
+
+let sessions = loadSessions();
+let activeSessionId = localStorage.getItem(ACTIVE_SESSION_KEY) || sessions[0].id;
+
+const getActiveSession = () =>
+    sessions.find(s => s.id === activeSessionId) || sessions[0];
+
+let timeleft = getActiveSession().duration;
 let timerInterval;
 let timerState = "ready";
 
@@ -67,6 +101,40 @@ const applyTimerState = (nextState) => {
     updateTitle();
 };
 
+const renderModeSelector = () => {
+    if (!modeSelector) return;
+    modeSelector.innerHTML = "";
+    sessions.forEach(session => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "mode-btn";
+        btn.textContent = session.label;
+        btn.dataset.sessionId = session.id;
+        btn.setAttribute("aria-pressed", session.id === activeSessionId ? "true" : "false");
+        btn.addEventListener("click", () => setMode(session.id));
+        modeSelector.appendChild(btn);
+    });
+};
+
+const setMode = (sessionId) => {
+    activeSessionId = sessionId;
+    localStorage.setItem(ACTIVE_SESSION_KEY, sessionId);
+    const session = getActiveSession();
+    if (timerLabel) timerLabel.textContent = session.label;
+    timeleft = session.duration;
+    clearInterval(timerInterval);
+    timerInterval = null;
+    hideNotification();
+    applyTimerState("ready");
+    updateTimer();
+    // update aria-pressed on all mode buttons
+    modeSelector.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.setAttribute("aria-pressed", btn.dataset.sessionId === sessionId ? "true" : "false");
+    });
+};
+
+
+
 const updateTimer = () => {
     timer.textContent = formatTime(timeleft);
     updateTitle();
@@ -87,7 +155,7 @@ const startTimer = () => {
         if (timeleft <= 0) {
             clearInterval(timerInterval);
             timerInterval = null;
-            timeleft = defaultTime;
+            timeleft = getActiveSession().duration;
             showNotification("Your focus block is complete. Take a breath before the next one.");
             applyTimerState("complete");
             updateTimer();
@@ -104,7 +172,7 @@ const pauseTimer = () => {
 const resetTimer = () => {
     clearInterval(timerInterval);
     timerInterval = null;
-    timeleft = defaultTime;
+    timeleft = getActiveSession().duration;
     hideNotification();
     applyTimerState("ready");
     updateTimer();
@@ -162,3 +230,5 @@ if (themeToggle) {
 
 updateTimer();
 applyTimerState("ready");
+renderModeSelector();
+if (timerLabel) timerLabel.textContent = getActiveSession().label;

@@ -275,6 +275,47 @@ body[data-theme="emerald-night"] #reset:active {
     border-color: #111111;
 }
 
+.mode-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.mode-btn {
+    /* reset base button styles */
+    border-radius: 999px;
+    padding: 0.32rem 0.85rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms ease;
+    /* default: ghost */
+    background: transparent;
+    color: var(--muted-ink);
+    border: 1px solid var(--line);
+    box-shadow: none;
+}
+
+.mode-btn:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+    transform: none;
+    filter: none;
+}
+
+.mode-btn[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+}
+
+.mode-btn[aria-pressed="true"]:hover {
+    filter: none;
+    transform: none;
+}
+
 .timer-label {
     text-transform: uppercase;
     letter-spacing: 0.14em;
