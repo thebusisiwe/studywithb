@@ -26,6 +26,21 @@
       </div>
         <h1 class="title">Pomodoro Timer</h1>
       <p class="subtitle">For creators who code in daylight and pray at midnight.</p>
+
+        <div class="science-card" aria-label="The science behind Pomodoro">
+          <p class="science-card__eyebrow">Why it works</p>
+          <ul class="science-card__list">
+            <li><strong>Breaks prevent attention collapse.</strong> Mandatory short intervals keep your brain re-engaging with your goal, helping to prevent vigilance decrements that compound over long unbroken sessions.</li>
+            <li><strong>Structure weakens procrastination.</strong> Procrastination is mostly a self-regulation failure. Fixed time-boxes lower the energy you need to start by shrinking your idea of commitment to your task.</li>
+            <li><strong>Intervals encode memory more deeply.</strong> Distributed practice — working in spaced, separated bursts — produces stronger long-term retention than equivalent massed study.</li>
+          </ul>
+          <ol class="science-card__bib">
+            <li>Ariga, A., &amp; Lleras, A. (2011). Brief and rare mental "breaks" keep you focused: Deactivation and reactivation of task goals preempt vigilance decrements. <em>Cognition, 118</em>(3), 439–443. <a class="science-card__link" href="https://doi.org/10.1016/j.cognition.2010.12.007" target="_blank" rel="noopener noreferrer">doi:10.1016/j.cognition.2010.12.007</a></li>
+            <li>Steel, P. (2007). The nature of procrastination: A meta-analytic and theoretical review of quintessential self-regulatory failure. <em>Psychological Bulletin, 133</em>(1), 65–94. <a class="science-card__link" href="https://doi.org/10.1037/0033-2909.133.1.065" target="_blank" rel="noopener noreferrer">doi:10.1037/0033-2909.133.1.065</a></li>
+            <li>Cepeda, N. J., Pashler, H., Vul, E., Wixted, J. T., &amp; Rohrer, D. (2006). Distributed practice in verbal recall tasks: A review and quantitative synthesis. <em>Psychological Bulletin, 132</em>(3), 354–380. <a class="science-card__link" href="https://doi.org/10.1037/0033-2909.132.3.354" target="_blank" rel="noopener noreferrer">doi:10.1037/0033-2909.132.3.354</a></li>
+          </ol>
+        </div>
+
         <div class="rail-bottom">
           <p class="rail-note">Issue 01 · Ritual Edition</p>
           <button class="install-btn" id="install-btn" type="button" hidden>Install app</button>
@@ -80,10 +95,21 @@
           </form>
 
           <div class="planner-toolbar">
-            <label class="planner-toggle" for="show-archived">
-              <input id="show-archived" type="checkbox">
-              Show archived
+            <label class="planner-sort-wrap" for="planner-sort">
+              <span class="planner-sort-label">Sort</span>
+              <select class="planner-sort" id="planner-sort">
+                <option value="newest">Newest</option>
+                <option value="remaining">Most remaining</option>
+                <option value="closest">Closest to done</option>
+                <option value="status">Status</option>
+              </select>
             </label>
+            <div class="planner-filters" id="planner-filters" role="group" aria-label="Task status filter">
+              <button class="planner-filter" type="button" data-filter="all" aria-pressed="true">All</button>
+              <button class="planner-filter" type="button" data-filter="active" aria-pressed="false">Active</button>
+              <button class="planner-filter" type="button" data-filter="done" aria-pressed="false">Done</button>
+              <button class="planner-filter" type="button" data-filter="archived" aria-pressed="false">Archived</button>
+            </div>
           </div>
 
           <section class="planner-list-panel" aria-label="Planner task list">

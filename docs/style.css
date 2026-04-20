@@ -203,6 +203,86 @@ body[data-theme="emerald-night"] .theme-toggle:hover {
     max-width: 32ch;
 }
 
+/* ── Science card ───────────────────────────────────── */
+.science-card {
+    margin-top: 1.6rem;
+    padding: 1.1rem 1.2rem 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: rgba(20, 15, 12, 0.03);
+    max-width: 36ch;
+}
+
+body[data-theme="burgundy-night"] .science-card,
+body[data-theme="emerald-night"] .science-card {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.science-card__eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--muted-ink);
+    margin-bottom: 0.75rem;
+}
+
+.science-card__list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.science-card__list li {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--ink);
+    padding-left: 1.1em;
+    position: relative;
+}
+
+.science-card__list li::before {
+    content: "–";
+    position: absolute;
+    left: 0;
+    color: var(--muted-ink);
+}
+
+.science-card__bib {
+    margin: 0;
+    padding-left: 1.4em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    border-top: 1px solid var(--line);
+    padding-top: 0.85rem;
+}
+
+.science-card__bib li {
+    font-size: 0.72rem;
+    line-height: 1.65;
+    color: var(--muted-ink);
+}
+
+.science-card__bib em {
+    font-style: italic;
+}
+
+.science-card__link {
+    color: var(--muted-ink);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-all;
+}
+
+.science-card__link:hover {
+    color: var(--ink);
+}
+
+/* ── Rail bottom ─────────────────────────────────────── */
 .rail-bottom {
     margin-top: auto;
     padding-top: 1.6rem;
@@ -330,18 +410,62 @@ body[data-view="planner"] #timer-stage {
 
 .planner-toolbar {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    flex-wrap: wrap;
 }
 
-.planner-toggle {
+.planner-sort-wrap {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
+}
+
+.planner-sort-label {
     color: var(--muted-ink);
     font-size: 0.76rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 700;
+}
+
+.planner-sort {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 0.36rem 0.72rem;
+    font-size: 0.78rem;
+    font-family: "Space Grotesk", sans-serif;
+}
+
+.planner-filters {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.28rem;
+    background: var(--panel-strong);
+}
+
+.planner-filter {
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted-ink);
+    padding: 0.34rem 0.58rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.planner-filter[aria-pressed="true"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--bg);
 }
 
 .planner-list-panel {
@@ -381,10 +505,38 @@ body[data-view="planner"] #timer-stage {
 }
 
 .planner-item-meta {
-    color: var(--muted-ink);
-    font-size: 0.74rem;
-    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 0.38rem;
+    flex-wrap: wrap;
+}
+
+.planner-chip {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.2rem 0.48rem;
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
+    font-weight: 700;
+    color: var(--muted-ink);
+    background: var(--panel);
+}
+
+.planner-chip-status {
+    color: var(--ink);
+}
+
+.planner-chip-status-active {
+    border-color: rgba(63, 82, 76, 0.42);
+}
+
+.planner-chip-status-done {
+    border-color: rgba(59, 98, 76, 0.44);
+}
+
+.planner-chip-status-archived {
+    border-color: rgba(72, 80, 92, 0.44);
 }
 
 .planner-item-done .planner-item-title {
@@ -879,6 +1031,29 @@ button.planner-submit:hover {
     .planner-item {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .planner-toolbar {
+        align-items: stretch;
+    }
+
+    .planner-sort-wrap,
+    .planner-sort,
+    .planner-filters {
+        width: 100%;
+    }
+
+    .planner-sort-wrap {
+        justify-content: space-between;
+    }
+
+    .planner-filters {
+        justify-content: space-between;
+    }
+
+    .planner-filter {
+        flex: 1;
+        text-align: center;
     }
 
     .planner-item-actions {
